@@ -1,22 +1,29 @@
+import { db } from '@/src/db/client';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { Text, View } from 'react-native';
 import 'react-native-reanimated';
-
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import migrations from '../../drizzle/migrations';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const { success, error } = useMigrations(db, migrations);
+
+  if (error) {
+    return <View><Text>Error: {error.message}</Text></View>;
+  }
+
+  if (!success) {
+    return <View><Text>Cargando...</Text></View>;
+  }
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
