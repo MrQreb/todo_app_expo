@@ -5,9 +5,11 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SelectStatus } from '../components/SelectStatus/select-status';
 import { TodoList } from '../components/TodoList/todo-list';
 import { SelectPriority } from '../components/ui/select-priority';
 import { db } from '../db/client';
+import { todoQueries } from '../queries/todoQueries';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -16,7 +18,15 @@ export default function HomeScreen() {
   const [text, setText] = useState<string>('');
   const [priority, setPriority] = useState<Priority>('medium');
 
-  const { data: taskList } = useLiveQuery(db.select().from(todos));
+
+  // const query = useMemo(() => todoQueries.getByPriority(priority), [priority]);
+
+
+  const { data: taskList } = useLiveQuery(
+    todoQueries.getAll(),
+    // [priority]  
+  );
+
 
   const addTodo = async () => {
     const trimmed = text.trim();
@@ -62,6 +72,11 @@ export default function HomeScreen() {
             taskList={taskList}
             onSwipeRight={deleteTodo}
             onSwipeLeft={completeTodo}
+          />
+        </View>
+
+        <View style={{ flex: 1 }}>
+          <SelectStatus
           />
         </View>
 
