@@ -24,7 +24,7 @@ export const todoQueries = {
             )
     },
 
-    getByStatus: (isCompleted: boolean = true) => {
+    getCompleted: (isCompleted: boolean = true) => {
         return db.select()
             .from(todos)
             .where(

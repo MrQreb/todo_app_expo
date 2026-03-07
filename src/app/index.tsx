@@ -5,7 +5,8 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SelectStatus } from '../components/SelectStatus/select-status';
+import { FilterStatus, SelectStatus } from '../components/SelectStatus/select-status';
+import { TodoDetailModal } from '../components/TodoList/todo-detail-modal';
 import { TodoList } from '../components/TodoList/todo-list';
 import { SelectPriority } from '../components/ui/select-priority';
 import { db } from '../db/client';
@@ -16,17 +17,21 @@ export default function HomeScreen() {
   const dark = colorScheme === 'dark';
 
   const [text, setText] = useState<string>('');
+
+  const [filter, setFilter] = useState<FilterStatus>('all');
   const [priority, setPriority] = useState<Priority>('medium');
+  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
 
 
-  // const query = useMemo(() => todoQueries.getByPriority(priority), [priority]);
+  const QUERY_MAP = {
+    all: todoQueries.getAll(),
+    completed: todoQueries.getCompleted(true),
+    pending: todoQueries.getCompleted(false),
+  };
 
 
-  const { data: taskList } = useLiveQuery(
-    todoQueries.getAll(),
-    // [priority]  
-  );
 
+  const { data: filteredList } = useLiveQuery(QUERY_MAP[filter], [filter]);
 
   const addTodo = async () => {
     const trimmed = text.trim();
@@ -53,6 +58,10 @@ export default function HomeScreen() {
     }
   };
 
+  const handleFilterPress = (seleted: FilterStatus) => {
+    setFilter(prev => prev === seleted ? 'all' : seleted);
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: dark ? '#111' : '#f5f5f5' }]}>
       <KeyboardAvoidingView
@@ -67,18 +76,25 @@ export default function HomeScreen() {
 
         <SelectPriority selected={priority} onSelect={setPriority} />
 
+        <SelectStatus
+          activeFilter={filter}
+          onPressAll={() => setFilter('all')}
+          onPressCompleted={() => handleFilterPress('completed')}
+          onPressInNotCompleted={() => handleFilterPress('pending')}
+        />
+
+
+
         <View style={{ flex: 1 }}>
           <TodoList
-            taskList={taskList}
+            taskList={filteredList}
             onSwipeRight={deleteTodo}
             onSwipeLeft={completeTodo}
+            onLongPress={(todo) => setSelectedTodo(todo)}
+
           />
         </View>
 
-        <View style={{ flex: 1 }}>
-          <SelectStatus
-          />
-        </View>
 
         <View style={[styles.inputContainer, {
           backgroundColor: dark ? '#1e1e1e' : '#fff',
@@ -101,6 +117,13 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+
+      <TodoDetailModal                             
+        todo={selectedTodo}
+        onClose={() => setSelectedTodo(null)}
+      />
+      
     </SafeAreaView>
   );
 }

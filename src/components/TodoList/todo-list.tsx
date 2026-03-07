@@ -1,8 +1,6 @@
 import { Todo } from '@/src/db/schema';
-import { useState } from 'react';
 import { ScrollView, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { TodoDetailModal } from './todo-detail-modal';
 import { TodoItem } from './todo-item';
 
 type Props = {
@@ -10,11 +8,11 @@ type Props = {
   onPress?: (todo: Todo) => void;
   onSwipeRight?: (todo: Todo) => void;
   onSwipeLeft?: (todo: Todo) => void;
+  onLongPress?: (todo: Todo) => void;
 };
 
-export const TodoList = ({ taskList, onPress, onSwipeRight, onSwipeLeft }: Props) => {
+export const TodoList = ({ taskList, onPress, onSwipeRight, onSwipeLeft, onLongPress }: Props) => {
   const dark = useColorScheme() === 'dark';
-  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -27,15 +25,10 @@ export const TodoList = ({ taskList, onPress, onSwipeRight, onSwipeLeft }: Props
             onPress={onPress}
             onSwipeRight={onSwipeRight}
             onSwipeLeft={onSwipeLeft}
-            onDoubleTap={setSelectedTodo}
+            onLongPress={onLongPress}
           />
         ))}
       </ScrollView>
-
-      <TodoDetailModal
-        todo={selectedTodo}
-        onClose={() => setSelectedTodo(null)}
-      />
     </GestureHandlerRootView>
   );
 };

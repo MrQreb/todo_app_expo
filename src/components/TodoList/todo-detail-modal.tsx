@@ -9,6 +9,9 @@ type Props = {
 export const TodoDetailModal = ({ todo, onClose }: Props) => {
   const dark = useColorScheme() === 'dark';
 
+
+  console.log(todo)
+
   return (
     <Modal
       visible={!!todo}
