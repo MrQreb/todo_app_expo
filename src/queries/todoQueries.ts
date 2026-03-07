@@ -30,5 +30,10 @@ export const todoQueries = {
             .where(
                 eq(todos.completed, isCompleted)
             )
-    }
+    },
+    updateTitle: async (id: number, newTitle: string) => {
+        await db.update(todos)
+            .set({ title: newTitle })
+            .where(eq(todos.id, id));
+    },
 }
