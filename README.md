@@ -56,3 +56,4 @@ Join our community of developers creating universal apps.
 - Expo SQLite
 - Drizzle ORM =>
 - React Native Reanimated =>
+- @react-native-community/datetimepicker
