@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Text, View } from 'react-native';
 import 'react-native-reanimated';
 import migrations from '../../drizzle/migrations';
+import { ToastProvider } from '../components/ui/Toast/index';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -22,6 +23,7 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <ToastProvider>
       <Drawer>
         <Drawer.Screen
           name="index"
@@ -33,6 +35,7 @@ export default function RootLayout() {
         />
       </Drawer>
       <StatusBar style="auto" />
+      </ToastProvider>
     </ThemeProvider>
   );
 }
