@@ -24,17 +24,18 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <ToastProvider>
-      <Drawer>
-        <Drawer.Screen
-          name="index"
-          options={{
-            drawerLabel: 'Tareas',
-            // title: 'Tareas',
-            
-          }}
-        />
-      </Drawer>
-      <StatusBar style="auto" />
+        <Drawer
+        >
+          <Drawer.Screen
+            name="index"
+            options={{
+              drawerLabel: 'Tareas',
+              title: '',
+            }}
+
+          />
+        </Drawer>
+        <StatusBar style="auto" />
       </ToastProvider>
     </ThemeProvider>
   );

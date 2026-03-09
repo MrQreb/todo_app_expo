@@ -64,7 +64,11 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: dark ? '#111' : '#f5f5f5' }]}>
+    <SafeAreaView
+      edges={['bottom', 'left', 'right']}  
+      style={[styles.container]}
+    >
+
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -120,7 +124,7 @@ export default function HomeScreen() {
       </KeyboardAvoidingView>
 
 
-      <TodoDetailModal                             
+      <TodoDetailModal
         todo={selectedTodo}
         onClose={() => setSelectedTodo(null)}
       />
