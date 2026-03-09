@@ -2,7 +2,7 @@ import { db } from '@/src/db/client';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
-import { Stack } from 'expo-router';
+import { Drawer } from 'expo-router/drawer';
 import { StatusBar } from 'expo-status-bar';
 import { Text, View } from 'react-native';
 import 'react-native-reanimated';
@@ -22,9 +22,16 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-      </Stack>
+      <Drawer>
+        <Drawer.Screen
+          name="index"
+          options={{
+            drawerLabel: 'Tareas',
+            // title: 'Tareas',
+            
+          }}
+        />
+      </Drawer>
       <StatusBar style="auto" />
     </ThemeProvider>
   );

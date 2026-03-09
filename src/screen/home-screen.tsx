@@ -7,7 +7,7 @@ import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableO
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SelectPriority } from '../components/ui/SelectPriority/select-priority';
 import { FilterStatus, SelectStatus } from '../components/ui/SelectStatus/select-status';
-import { TodoDetailModal } from '../components/ui/TodoList/todo-detail-modal';
+import { TodoDetailModal } from '../components/ui/TodoList/EditModal/todo-detail-modal';
 import { TodoList } from '../components/ui/TodoList/todo-list';
 import { db } from '../db/client';
 import { todoQueries } from '../queries/todoQueries';
@@ -28,7 +28,6 @@ export default function HomeScreen() {
     completed: todoQueries.getCompleted(true),
     pending: todoQueries.getCompleted(false),
   };
-
 
 
   const { data: filteredList } = useLiveQuery(QUERY_MAP[filter], [filter]);
