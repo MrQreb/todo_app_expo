@@ -44,7 +44,6 @@ export default function HomeScreen() {
   const deleteTodo = async (todo: Todo) => {
     try {
       await db.delete(todos).where(eq(todos.id, todo.id));
-      toast.warning('Tarea eliminada');
     } catch (error) {
       console.error('Error al eliminar:', error);
     }
@@ -55,8 +54,6 @@ export default function HomeScreen() {
       await db.update(todos)
         .set({ completed: !todo.completed })
         .where(eq(todos.id, todo.id));
-      toast.success('Tarea completada');
-
     } catch (error) {
       console.error('Error al completar:', error);
     }
@@ -68,7 +65,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView
-      edges={['bottom', 'left', 'right']}
+      edges={['bottom', 'left', 'right']}  
       style={[styles.container]}
     >
 
