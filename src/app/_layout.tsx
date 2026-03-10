@@ -25,7 +25,8 @@ export default function RootLayout() {
   return (
 
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      
+      <GestureHandlerRootView style={{ flex: 1 }}> //Necesary to use gestures in toast
         <ToastProvider>
           <Drawer
           >
