@@ -1,11 +1,5 @@
 /**
- * @fileoverview Componente visual `ToastBanner`.
- *
- * @remarks
- * Renderiza el banner animado. Gestiona entrada/salida con Reanimated
- * y el timer de auto-dismiss. Es un componente interno — no se exporta
- * directamente; lo monta `ToastProvider`.
- *
+ * @fileoverview Componente visual `ToastBanner` — rediseño minimalista.
  * @internal
  */
 
@@ -17,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
   runOnJS,
@@ -28,22 +23,16 @@ import Animated, {
 
 import { emitter } from './toast.emitter';
 import { CheckIcon, CloseIcon, InfoIcon, Spinner, TriangleIcon, XCircleIcon } from './toast.icons';
-import { DEFAULTS, H_PAD, SPRING_CFG, SB_H, TOAST_W, hexAlpha } from './toast.theme';
+import { DEFAULTS, H_PAD, SB_H, SPRING_CFG, TOAST_W } from './toast.theme';
 import { ToastGlobalConfig, ToastState, ToastTheme } from './toast.types';
 
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** @internal Contexto que transporta la config global desde `ToastProvider`. */
 export const ConfigCtx = React.createContext<ToastGlobalConfig>({});
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 interface ToastBannerProps {
   state:  ToastState;
   onHide: () => void;
 }
 
-/** @internal Banner animado de un toast activo. */
 export const ToastBanner = ({ state, onHide }: ToastBannerProps) => {
   const globalCfg = useContext(ConfigCtx);
 
@@ -52,18 +41,19 @@ export const ToastBanner = ({ state, onHide }: ToastBannerProps) => {
     style, titleStyle, messageStyle, icon, resolve,
   } = state;
 
-  // Merge: built-in defaults ← provider config (por tipo)
   const theme: Required<ToastTheme> = { ...DEFAULTS[type], ...globalCfg[type] };
 
   const isTop = position === 'top';
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Animated values
-  const ty = useSharedValue(isTop ? -120 : 120);
+  const ty = useSharedValue(isTop ? -80 : 80);
+  const tx = useSharedValue(0);
   const op = useSharedValue(0);
-  const sc = useSharedValue(0.94);
+  const sc = useSharedValue(0.97);
 
-  // Llama a onHide (limpia state en Provider) y resolve (Promise pública)
+  // Umbral horizontal para considerar el gesto como swipe
+  const SWIPE_THRESHOLD = TOAST_W * 0.35;
+
   const finish = useCallback(() => {
     onHide();
     resolve();
@@ -71,18 +61,45 @@ export const ToastBanner = ({ state, onHide }: ToastBannerProps) => {
 
   const dismiss = useCallback(() => {
     if (timer.current) clearTimeout(timer.current);
-    ty.value = withTiming(isTop ? -120 : 120, {
-      duration: 260,
+    ty.value = withTiming(isTop ? -80 : 80, {
+      duration: 220,
       easing: Easing.in(Easing.cubic),
     });
-    op.value = withTiming(0, { duration: 220 });
-    sc.value = withTiming(0.94, { duration: 220 }, () => runOnJS(finish)());
+    op.value = withTiming(0, { duration: 180 });
+    sc.value = withTiming(0.97, { duration: 180 }, () => runOnJS(finish)());
   }, [isTop, ty, op, sc, finish]);
 
-  // Entrada + auto-dismiss
+  const dismissX = useCallback((direction: 1 | -1) => {
+    if (timer.current) clearTimeout(timer.current);
+    tx.value = withTiming(direction * (TOAST_W + H_PAD * 2), {
+      duration: 240,
+      easing: Easing.in(Easing.cubic),
+    });
+    op.value = withTiming(0, { duration: 200 }, () => runOnJS(finish)());
+  }, [tx, op, finish]);
+
+  const swipeGesture = Gesture.Pan()
+    .activeOffsetX([-10, 10])
+    .failOffsetY([-8, 8])
+    .onUpdate(e => {
+      tx.value = e.translationX;
+      // Fade sutil al arrastrar
+      op.value = Math.max(0.4, 1 - Math.abs(e.translationX) / (TOAST_W * 0.6));
+    })
+    .onEnd(e => {
+      if (Math.abs(e.translationX) > SWIPE_THRESHOLD || Math.abs(e.velocityX) > 600) {
+        const dir = e.translationX > 0 ? 1 : -1;
+        runOnJS(dismissX)(dir);
+      } else {
+        // Vuelve a su lugar con spring
+        tx.value = withSpring(0, { damping: 20, stiffness: 300 });
+        op.value = withTiming(1, { duration: 150 });
+      }
+    });
+
   useEffect(() => {
     ty.value = withSpring(0, SPRING_CFG);
-    op.value = withTiming(1, { duration: 160 });
+    op.value = withTiming(1, { duration: 200 });
     sc.value = withSpring(1, SPRING_CFG);
 
     if (duration > 0) {
@@ -91,87 +108,78 @@ export const ToastBanner = ({ state, onHide }: ToastBannerProps) => {
     return () => { if (timer.current) clearTimeout(timer.current); };
   }, [duration, dismiss, ty, op, sc]);
 
-  // Registra dismiss para toast.hide()
   useEffect(() => {
     emitter.onHide(dismiss);
   }, [dismiss]);
 
   const animStyle = useAnimatedStyle(() => ({
     opacity:   op.value,
-    transform: [{ translateY: ty.value }, { scale: sc.value }],
+    transform: [{ translateY: ty.value }, { translateX: tx.value }, { scale: sc.value }],
   }));
 
   const accent = theme.accent;
+
   const iconEl = icon ?? (() => {
-    const p = { color: accent, size: 16 };
+    const p = { color: accent, size: 15 };
     switch (type) {
       case 'success': return <CheckIcon    {...p} />;
       case 'error':   return <XCircleIcon  {...p} />;
       case 'warning': return <TriangleIcon {...p} />;
       case 'info':    return <InfoIcon     {...p} />;
-      case 'loading': return <Spinner      color={accent} size={17} />;
+      case 'loading': return <Spinner      color={accent} size={16} />;
     }
   })();
 
   return (
-    <Animated.View
-      style={[
-        s.banner,
-        isTop ? s.posTop : s.posBottom,
-        {
-          backgroundColor: theme.bg,
-          borderColor:     hexAlpha(accent, 0.18),
-          borderRadius:    theme.radius,
-          shadowColor:     accent,
-        },
-        style,
-        animStyle,
-      ]}
-      accessibilityRole="alert"
-      accessibilityLiveRegion="polite"
-    >
-      {/* Línea de acento superior */}
-      <View style={[s.topLine, { backgroundColor: hexAlpha(accent, 0.5) }]} />
-
-      {/* Ícono */}
-      <View style={s.iconWrap}>
-        {iconEl}
-      </View>
-
-      {/* Texto */}
-      <View style={s.textWrap}>
-        <Text style={[s.title, titleStyle]} numberOfLines={1}>
-          {title}
-        </Text>
-        {!!message && (
-          <Text style={[s.subtitle, messageStyle]} numberOfLines={2}>
-            {message}
-          </Text>
-        )}
-      </View>
-
-      {/* Badge de tipo */}
-      <Text style={[s.badge, { color: hexAlpha(accent, 0.55) }]}>
-        {type}
-      </Text>
-
-      {/* Cerrar */}
-      <TouchableOpacity
-        onPress={dismiss}
-        style={s.closeBtn}
-        hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-        accessibilityRole="button"
-        accessibilityLabel="Cerrar"
+    <GestureDetector gesture={swipeGesture}>
+      <Animated.View
+        style={[
+          s.banner,
+          isTop ? s.posTop : s.posBottom,
+          {
+            backgroundColor: theme.bg,
+            borderRadius:    theme.radius,
+          },
+          style,
+          animStyle,
+        ]}
+        accessibilityRole="alert"
+        accessibilityLiveRegion="polite"
       >
-        <CloseIcon color="rgba(255,255,255,0.18)" size={10} />
-      </TouchableOpacity>
-    </Animated.View>
+        {/* Barra de acento izquierda — minimalista */}
+        <View style={[s.accentBar, { backgroundColor: accent }]} />
+
+        {/* Ícono */}
+        <View style={s.iconWrap}>
+          {iconEl}
+        </View>
+
+        {/* Texto */}
+        <View style={s.textWrap}>
+          <Text style={[s.title, titleStyle]} numberOfLines={1}>
+            {title}
+          </Text>
+          {!!message && (
+            <Text style={[s.subtitle, messageStyle]} numberOfLines={2}>
+              {message}
+            </Text>
+          )}
+        </View>
+
+        {/* Cerrar */}
+        <TouchableOpacity
+          onPress={dismiss}
+          style={s.closeBtn}
+          hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
+          accessibilityRole="button"
+          accessibilityLabel="Cerrar"
+        >
+          <CloseIcon color="rgba(255,255,255,0.25)" size={9} />
+        </TouchableOpacity>
+      </Animated.View>
+    </GestureDetector>
   );
 };
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Styles
-// ─────────────────────────────────────────────────────────────────────────────
 
 const s = StyleSheet.create({
   banner: {
@@ -180,16 +188,16 @@ const s = StyleSheet.create({
     width:           TOAST_W,
     flexDirection:   'row',
     alignItems:      'center',
-    borderWidth:     1,
-    paddingVertical: 11,
-    paddingRight:    10,
     overflow:        'hidden',
-    // iOS shadow
-    shadowOffset:    { width: 0, height: 8 },
-    shadowOpacity:   0.25,
-    shadowRadius:    20,
+    paddingVertical: 13,
+    paddingRight:    12,
+    // iOS shadow — muy sutil
+    shadowColor:     '#000',
+    shadowOffset:    { width: 0, height: 4 },
+    shadowOpacity:   0.35,
+    shadowRadius:    16,
     // Android
-    elevation:       12,
+    elevation:       10,
     zIndex:          9999,
   },
 
@@ -200,21 +208,21 @@ const s = StyleSheet.create({
     bottom: Platform.OS === 'ios' ? 44 : 24,
   },
 
-  // Línea de 1px en el borde superior
-  topLine: {
-    position:     'absolute',
-    top:          0,
-    left:         16,
-    right:        16,
-    height:       1,
+  // Barra vertical izquierda — señal de tipo sin ruido
+  accentBar: {
+    width:        3,
+    alignSelf:    'stretch',
+    borderRadius: 2,
+    marginLeft:   14,
+    marginRight:  12,
+    marginVertical: 2,
   },
 
   iconWrap: {
-    width:          34,
-    height:         34,
+    width:          28,
+    height:         28,
     justifyContent: 'center',
     alignItems:     'center',
-    marginLeft:     12,
     marginRight:    10,
   },
 
@@ -223,37 +231,26 @@ const s = StyleSheet.create({
   },
 
   title: {
-    color:         '#e8e8ed',
-    fontSize:      13,
+    color:         'rgba(255,255,255,0.92)',
+    fontSize:      13.5,
     fontWeight:    '500',
-    letterSpacing: 0.1,
+    letterSpacing: 0.05,
     ...Platform.select({ android: { fontFamily: 'sans-serif-medium' } }),
   },
 
   subtitle: {
-    color:      'rgba(232,232,237,0.4)',
-    fontSize:   11.5,
+    color:      'rgba(255,255,255,0.38)',
+    fontSize:   12,
     marginTop:  2,
-    lineHeight: 16,
-    ...Platform.select({ android: { fontFamily: 'sans-serif' } }),
-  },
-
-  // Texto pequeño del tipo (success, error…)
-  badge: {
-    fontSize:      9,
-    fontWeight:    '500',
-    letterSpacing: 0.6,
-    marginLeft:    8,
-    marginRight:   4,
+    lineHeight: 17,
     ...Platform.select({ android: { fontFamily: 'sans-serif' } }),
   },
 
   closeBtn: {
-    width:           24,
-    height:          24,
-    borderRadius:    6,
-    justifyContent:  'center',
-    alignItems:      'center',
-    marginLeft:      4,
+    width:          22,
+    height:         22,
+    justifyContent: 'center',
+    alignItems:     'center',
+    marginLeft:     6,
   },
 });

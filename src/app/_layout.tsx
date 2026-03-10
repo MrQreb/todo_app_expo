@@ -5,6 +5,7 @@ import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { Drawer } from 'expo-router/drawer';
 import { StatusBar } from 'expo-status-bar';
 import { Text, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import migrations from '../../drizzle/migrations';
 import { ToastProvider } from '../components/ui/Toast/index';
@@ -22,21 +23,25 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <ToastProvider>
-        <Drawer
-        >
-          <Drawer.Screen
-            name="index"
-            options={{
-              drawerLabel: 'Tareas',
-              title: '',
-            }}
 
-          />
-        </Drawer>
-        <StatusBar style="auto" />
-      </ToastProvider>
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <ToastProvider>
+          <Drawer
+          >
+            <Drawer.Screen
+              name="index"
+              options={{
+                drawerLabel: 'Tareas',
+                title: '',
+              }}
+
+            />
+          </Drawer>
+          <StatusBar style="auto" />
+        </ToastProvider>
+      </GestureHandlerRootView>
+
     </ThemeProvider>
   );
 }

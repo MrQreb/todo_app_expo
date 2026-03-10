@@ -1,6 +1,7 @@
 import { Todo } from "@/src/db/schema";
 import { todoQueries } from "@/src/queries/todoQueries";
 import { useEffect, useState } from 'react';
+import { toast } from "../../../Toast";
 
 export const useTodoDetail = (todo: Todo | null) => {
   const [editedTitle, setEditedTitle] = useState(todo?.title ?? '');
@@ -15,6 +16,7 @@ export const useTodoDetail = (todo: Todo | null) => {
     setIsSaving(true);
     await todoQueries.updateTitle(todo.id, editedTitle.trim());
     setIsSaving(false);
+    toast.success('Tarea modificada');
   };
 
   return { editedTitle, setEditedTitle, saveTitle, isSaving };
