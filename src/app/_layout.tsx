@@ -11,7 +11,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 export default function RootLayout() {
-  const { success, error } = useMigrations(db, migrations);
+  const { success, error, } = useMigrations(db, migrations);
+
 
   if (error) {
     return <View><Text>Error: {error.message}</Text></View>;
