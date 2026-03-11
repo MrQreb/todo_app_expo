@@ -13,5 +13,18 @@ export const todos = sqliteTable('todos', {
     .$defaultFn(() => new Date()),
 });
 
+export const photos = sqliteTable('photos', {
+  id: int('id').primaryKey({ autoIncrement: true }),
+  uri: text('uri').notNull(),
+  todoId: int('todo_id').notNull()
+    .references(() => todos.id, { onDelete: 'cascade' }),
+  createdAt: int('created_at', { mode: 'timestamp' })
+    .$defaultFn(() => new Date()),
+});
+
+
 export type Todo = typeof todos.$inferSelect;
 export type NewTodo = typeof todos.$inferInsert;
+
+export type Photo = typeof photos.$inferSelect;
+export type NewPhoto = typeof photos.$inferInsert;
