@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { InputActionButton, InputContainer, InputField } from '@src/components/ui/Input';
 import { SelectPriority } from '@src/components/ui/SelectPriority/select-priority';
 import { FilterStatus, SelectStatus } from '@src/components/ui/SelectStatus/select-status';
 import { toast } from '@src/components/ui/Toast';
@@ -10,7 +11,7 @@ import { todoQueries } from '@src/queries/todoQueries';
 import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
@@ -65,7 +66,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView
-      edges={['bottom', 'left', 'right']}  
+      edges={['bottom', 'left', 'right']}
       style={[styles.container]}
     >
 
@@ -99,28 +100,17 @@ export default function HomeScreen() {
 
           />
         </View>
-
-
-        <View style={[styles.inputContainer, {
-          backgroundColor: dark ? '#1e1e1e' : '#fff',
-          borderTopColor: dark ? '#333' : '#eee',
-        }]}>
-          <TextInput
-            style={[styles.input, {
-              backgroundColor: dark ? '#2a2a2a' : '#f0f0f0',
-              color: dark ? '#fff' : '#222',
-            }]}
-            placeholder="Añadir nueva tarea..."
-            placeholderTextColor={dark ? '#666' : '#999'}
+        
+        <InputContainer>
+          <InputField
             value={text}
             onChangeText={setText}
             onSubmitEditing={addTodo}
-            returnKeyType="done"
+            placeholder="Añadir nueva tarea..."
           />
-          <TouchableOpacity style={styles.button} onPress={addTodo}>
-            <Text style={styles.buttonText}>+</Text>
-          </TouchableOpacity>
-        </View>
+          <InputActionButton onPress={addTodo} />
+        </InputContainer>
+
       </KeyboardAvoidingView>
 
 
@@ -136,18 +126,5 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   title: { fontSize: 30, fontWeight: 'bold', margin: 16 },
-  inputContainer: {
-    flexDirection: 'row', alignItems: 'center',
-    padding: 16, gap: 10, borderTopWidth: 1,
-  },
-  input: {
-    flex: 1, borderRadius: 12,
-    paddingVertical: 12, paddingHorizontal: 16, fontSize: 16,
-  },
-  button: {
-    backgroundColor: '#6C63FF', width: 48, height: 48,
-    borderRadius: 24, alignItems: 'center', justifyContent: 'center',
-  },
-  buttonText: { color: '#fff', fontSize: 28, lineHeight: 30, fontWeight: 'bold' },
   header: { paddingHorizontal: 16, paddingTop: 8 },
 });
