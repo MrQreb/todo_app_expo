@@ -1,17 +1,16 @@
-import { db } from '@/src/db/client';
-import { useColorScheme } from '@/src/hooks/use-color-scheme';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+
+import migrations from '@migrations/migrations';
+import { DarkTheme, ThemeProvider } from '@react-navigation/native';
+import { ToastProvider } from '@src/components/ui/Toast';
+import { db } from '@src/db/client';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { Drawer } from 'expo-router/drawer';
 import { StatusBar } from 'expo-status-bar';
 import { Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
-import migrations from '../../drizzle/migrations';
-import { ToastProvider } from '../components/ui/Toast/index';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const { success, error } = useMigrations(db, migrations);
 
   if (error) {
@@ -24,9 +23,8 @@ export default function RootLayout() {
 
   return (
 
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      
-      <GestureHandlerRootView style={{ flex: 1 }}> //Necesary to use gestures in toast
+    <ThemeProvider value={DarkTheme}>
+      <GestureHandlerRootView style={{ flex: 1 }}>{/* Necesary to use gestures in toast */}
         <ToastProvider>
           <Drawer
           >

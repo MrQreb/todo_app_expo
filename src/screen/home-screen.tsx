@@ -1,17 +1,17 @@
-import { Priority, Todo, todos } from '@/src/db/schema';
 import { Ionicons } from '@expo/vector-icons';
+import { SelectPriority } from '@src/components/ui/SelectPriority/select-priority';
+import { FilterStatus, SelectStatus } from '@src/components/ui/SelectStatus/select-status';
+import { toast } from '@src/components/ui/Toast';
+import { TodoDetailModal } from '@src/components/ui/TodoList/EditModal/todo-detail-modal';
+import { TodoList } from '@src/components/ui/TodoList/todo-list';
+import { db } from '@src/db/client';
+import { Priority, Todo, todos } from '@src/db/schema';
+import { todoQueries } from '@src/queries/todoQueries';
 import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SelectPriority } from '../components/ui/SelectPriority/select-priority';
-import { FilterStatus, SelectStatus } from '../components/ui/SelectStatus/select-status';
-import { toast } from '../components/ui/Toast/index';
-import { TodoDetailModal } from '../components/ui/TodoList/EditModal/todo-detail-modal';
-import { TodoList } from '../components/ui/TodoList/todo-list';
-import { db } from '../db/client';
-import { todoQueries } from '../queries/todoQueries';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
