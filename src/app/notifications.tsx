@@ -1,7 +1,12 @@
-import NotificationsScreen from "../screen/notifcation-screen"
+import { lazy, Suspense } from 'react';
+import { Text } from 'react-native';
 
-export default function Index() {
+const NotificationsScreen = lazy(() => import('../screen/notifcation-screen'));
+
+export default function NotificationsPage() {
   return (
-    <NotificationsScreen />
-  )
+    <Suspense fallback={<Text>Cargando...</Text>}>
+      <NotificationsScreen />
+    </Suspense>
+  );
 }
