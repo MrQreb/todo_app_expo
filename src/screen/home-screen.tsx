@@ -1,17 +1,17 @@
-import { Ionicons } from '@expo/vector-icons';
 import { InputActionButton, InputContainer, InputField } from '@src/components/ui/Input';
+import PhotoPicker from '@src/components/ui/PhotoPicker/photo-picker';
 import { SelectPriority } from '@src/components/ui/SelectPriority/select-priority';
 import { FilterStatus, SelectStatus } from '@src/components/ui/SelectStatus/select-status';
 import { toast } from '@src/components/ui/Toast';
 import { TodoDetailModal } from '@src/components/ui/TodoList/EditModal/todo-detail-modal';
 import { TodoList } from '@src/components/ui/TodoList/todo-list';
 import { db } from '@src/db/client';
-import { Priority, Todo, todos } from '@src/db/schema';
+import { photos, Priority, Todo, todos } from '@src/db/schema';
 import { todoQueries } from '@src/queries/todoQueries';
 import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
-import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
@@ -19,6 +19,11 @@ export default function HomeScreen() {
   const dark = colorScheme === 'dark';
 
   const [text, setText] = useState<string>('');
+  const [taskImages, setTaskImages] = useState<string[]>([]);
+
+  useEffect(() => {
+    console.log(taskImages)
+  }, [taskImages])
 
   const [filter, setFilter] = useState<FilterStatus>('all');
   const [priority, setPriority] = useState<Priority>('medium');
@@ -31,15 +36,36 @@ export default function HomeScreen() {
     pending: todoQueries.getCompleted(false),
   };
 
-
   const { data: filteredList } = useLiveQuery(QUERY_MAP[filter], [filter]);
+
 
   const addTodo = async () => {
     const trimmed = text.trim();
     if (!trimmed) return;
-    await db.insert(todos).values({ title: trimmed, priority });
+
+    // 1. Inserta el todo y obtén su id
+    const result = await db
+      .insert(todos)
+      .values({ title: trimmed, priority })
+      .returning({ id: todos.id });
+
+    const todoId = result[0].id;
+
+    // 2. Inserta cada imagen relacionada al todo
+    if (taskImages.length > 0) {
+      await db.insert(photos).values(
+        taskImages.map(uri => ({ uri, todoId }))
+      );
+    }
+
     setText('');
+    setTaskImages([]);
     toast.success('Tarea agregada');
+
+    const last = await todoQueries.getLastWithPhotos();
+    console.log('Último todo con fotos:', JSON.stringify(last, null, 2));
+
+
   };
 
   const deleteTodo = async (todo: Todo) => {
@@ -74,9 +100,6 @@ export default function HomeScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <TouchableOpacity style={styles.header} onPress={() => console.log('menu')}>
-          <Ionicons name="sunny" size={22} color={dark ? '#fff' : '#222'} />
-        </TouchableOpacity>
 
         <Text style={[styles.title, { color: dark ? '#fff' : '#222' }]}>Mis Tareas</Text>
 
@@ -100,7 +123,13 @@ export default function HomeScreen() {
 
           />
         </View>
-        
+
+        <PhotoPicker
+          multiple
+          maxImages={1}
+          onImagePicked={(uris) => setTaskImages(uris)}
+          onCancel={() => { }}
+        />
         <InputContainer>
           <InputField
             value={text}

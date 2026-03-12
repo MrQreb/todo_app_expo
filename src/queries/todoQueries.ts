@@ -1,6 +1,6 @@
 import { desc, eq } from 'drizzle-orm';
 import { db } from '../db/client';
-import { Priority, todos } from '../db/schema';
+import { photos, Priority, todos } from '../db/schema';
 
 /**
  * Queries personalizadas de los todos
@@ -35,5 +35,15 @@ export const todoQueries = {
         await db.update(todos)
             .set({ title: newTitle })
             .where(eq(todos.id, id));
+    },
+    getLastWithPhotos: () => {
+        return db.select({
+            todo: todos,
+            photo: photos,
+        })
+            .from(todos)
+            .leftJoin(photos, eq(photos.todoId, todos.id))
+            .orderBy(desc(todos.createdAt))
+            .limit(1);
     },
 }

@@ -3,6 +3,7 @@ import migrations from '@migrations/migrations';
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { ToastProvider } from '@src/components/ui/Toast';
 import { db } from '@src/db/client';
+import { useMediaLibraryPermission } from '@src/hooks/useMediaLibraryPermission';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { Drawer } from 'expo-router/drawer';
 import { StatusBar } from 'expo-status-bar';
@@ -12,6 +13,9 @@ import 'react-native-reanimated';
 
 export default function RootLayout() {
   const { success, error, } = useMigrations(db, migrations);
+
+  //Enables use file system
+  useMediaLibraryPermission()
 
 
   if (error) {

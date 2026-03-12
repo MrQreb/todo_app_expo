@@ -1,40 +1,58 @@
+import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
-import { Alert, Button, Image, StyleSheet, View } from 'react-native';
+import { ActionSheetIOS, Alert, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 export default function ImagePickerExample() {
   const [image, setImage] = useState<string | null>(null);
 
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library.
-    // Manually request permissions for videos on iOS when `allowsEditing` is set to `false`
-    // and `videoExportPreset` is `'Passthrough'` (the default), ideally before launching the picker
-    // so the app users aren't surprised by a system dialog after picking a video.
-    // See "Invoke permissions for videos" sub section for more details.
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (!permissionResult.granted) {
-      Alert.alert('Permission required', 'Permission to access the media library is required.');
-      return;
-    }
-
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images', 'videos'],
+  const openCamera = async () => {
+    const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
     });
+    if (!result.canceled) setImage(result.assets[0].uri);
+  };
 
-    console.log(result);
+  const openGallery = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (!result.canceled) setImage(result.assets[0].uri);
+  };
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+  const handlePress = () => {
+    if (Platform.OS === 'ios') {
+      // ✅ iOS: ActionSheet nativo
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['Cancelar', 'Tomar foto', 'Seleccionar de galería'],
+          cancelButtonIndex: 0,
+        },
+        (index) => {
+          if (index === 1) openCamera();
+          if (index === 2) openGallery();
+        }
+      );
+    } else {
+      // ✅ Android: Alert como alternativa
+      Alert.alert('Seleccionar imagen', '¿De dónde quieres obtener la imagen?', [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Tomar foto', onPress: openCamera },
+        { text: 'Galería', onPress: openGallery },
+      ]);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Button title="Pick an image from camera roll" onPress={pickImage} />
+    <View>
+      <Pressable onPress={handlePress}>
+        <MaterialIcons name="add-a-photo" size={24} color="white" />
+      </Pressable>
       {image && <Image source={{ uri: image }} style={styles.image} />}
     </View>
   );
