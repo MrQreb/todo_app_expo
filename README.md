@@ -51,12 +51,12 @@ Join our community of developers creating universal apps.
 
 # Libraries
 
-- Zustand =>
-- React Hook Form =>
 - Expo SQLite
-- Drizzle ORM =>
 - React Native Reanimated =>
+- Drizzle ORM =>
 - @react-native-community/datetimepicker
+  <!-- - React Hook Form => -->
+  <!-- - Zustand => -->
 
 # Migrations
 
