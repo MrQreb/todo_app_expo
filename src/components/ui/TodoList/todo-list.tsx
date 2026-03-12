@@ -1,14 +1,14 @@
-import { Todo } from '@src/db/schema';
+import { TodoWithPhotos } from '@src/db/schema';
 import { FlatList, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { TodoItem } from './todo-item';
 
 type Props = {
-  taskList: Todo[] | undefined;
-  onPress?: (todo: Todo) => void;
-  onSwipeRight?: (todo: Todo) => void;
-  onSwipeLeft?: (todo: Todo) => void;
-  onLongPress?: (todo: Todo) => void;
+  taskList: TodoWithPhotos[] | undefined;
+  onPress?: (todo: TodoWithPhotos) => void;
+  onSwipeRight?: (todo: TodoWithPhotos) => void;
+  onSwipeLeft?: (todo: TodoWithPhotos) => void;
+  onLongPress?: (todo: TodoWithPhotos) => void;
 };
 
 export const TodoList = ({ taskList, onPress, onSwipeRight, onSwipeLeft, onLongPress }: Props) => {

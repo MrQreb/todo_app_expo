@@ -1,5 +1,5 @@
+import { relations } from 'drizzle-orm';
 import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core';
-
 
 export const priorityEnum = ['low', 'medium', 'high', 'urgent'] as const;
 export type Priority = typeof priorityEnum[number];
@@ -22,14 +22,22 @@ export const photos = sqliteTable('photos', {
     .$defaultFn(() => new Date()),
 });
 
+// Relaciones
+export const todosRelations = relations(todos, ({ many }) => ({
+  photos: many(photos),
+}));
+
+export const photosRelations = relations(photos, ({ one }) => ({
+  todo: one(todos, {
+    fields: [photos.todoId],
+    references: [todos.id],
+  }),
+}));
+
+
 export type Todo = typeof todos.$inferSelect;
 export type NewTodo = typeof todos.$inferInsert;
 export type Photo = typeof photos.$inferSelect;
 export type NewPhoto = typeof photos.$inferInsert;
 
-// Tipo del join
-// export type TodoWithPhotos = {
-//     todos: Todo;
-//     photos: Photo | null;
-// };
-
+export type TodoWithPhotos = Todo & { photos: Photo[] };

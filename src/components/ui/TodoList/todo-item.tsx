@@ -1,5 +1,5 @@
 
-import { Todo } from '@src/db/schema';
+import { TodoWithPhotos } from '@src/db/schema';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
@@ -7,13 +7,13 @@ import { CompleteBackground } from './complete-background';
 import { DeleteBackground } from './delete-background';
 
 type Props = {
-  todo: Todo;
+  todo: TodoWithPhotos;
   dark: boolean;
-  onPress?: (todo: Todo) => void;
-  onSwipeRight?: (todo: Todo) => void;
-  onSwipeLeft?: (todo: Todo) => void;
-  onDoubleTap?: (todo: Todo) => void;
-  onLongPress?: (todo: Todo) => void;
+  onPress?: (todo: TodoWithPhotos) => void;
+  onSwipeRight?: (todo: TodoWithPhotos) => void;
+  onSwipeLeft?: (todo: TodoWithPhotos) => void;
+  onDoubleTap?: (todo: TodoWithPhotos) => void;
+  onLongPress?: (todo: TodoWithPhotos) => void;
 };
 
 const formatDate = (date?: Date | null) => {
@@ -34,11 +34,11 @@ const PRIORITY_COLORS = {
 
 export const TodoItem = ({ todo, dark, onPress, onSwipeRight, onSwipeLeft, onDoubleTap, onLongPress }: Props) => {
   const translateX = useSharedValue(0);
-  
+
   const pan = Gesture.Pan()
     .runOnJS(true)
     .activeOffsetX([-10, 10])
-    .failOffsetY([-10, 10])  
+    .failOffsetY([-10, 10])
     .onUpdate((e) => { translateX.value = e.translationX; })
     .onEnd((e) => {
       if (e.translationX > 100) onSwipeRight?.(todo);
@@ -94,6 +94,9 @@ export const TodoItem = ({ todo, dark, onPress, onSwipeRight, onSwipeLeft, onDou
               }]}>
                 {todo.title}
               </Text>
+
+              {/* Show images in todo */}
+              {/* <Image  style={styles.image} source={todo.photos[0]?.uri} src={todo.photos[0]?.uri} /> */}
             </View>
 
 
@@ -152,5 +155,10 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 2,
   },
+
+  image: {
+    width: 100,
+     height: 100
+  }
 
 });
