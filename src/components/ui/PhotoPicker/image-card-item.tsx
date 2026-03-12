@@ -9,7 +9,8 @@ interface Props {
   onRemove: (uri: string) => void;
 }
 
-/** Individual item photo
+/** 
+ * Individual item photo
  * @param image - uri 
  * @param onRemove - To remove photos 
  * 

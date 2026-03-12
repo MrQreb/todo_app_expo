@@ -1,10 +1,12 @@
 
 import { TodoWithPhotos } from '@src/db/schema';
+import { Image } from 'expo-image';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { CompleteBackground } from './complete-background';
 import { DeleteBackground } from './delete-background';
+
 
 type Props = {
   todo: TodoWithPhotos;
@@ -96,9 +98,11 @@ export const TodoItem = ({ todo, dark, onPress, onSwipeRight, onSwipeLeft, onDou
               </Text>
 
               {/* Show images in todo */}
-              {/* <Image  style={styles.image} source={todo.photos[0]?.uri} src={todo.photos[0]?.uri} /> */}
-            </View>
+              {todo.photos[0]?.uri && (
+                <Image style={styles.image} source={todo.photos[0]?.uri} />
+              )}
 
+            </View>
 
             <View style={[styles.priorityDot, { backgroundColor: PRIORITY_COLORS[todo.priority] }]} />
 
@@ -157,8 +161,18 @@ const styles = StyleSheet.create({
   },
 
   image: {
-    width: 100,
-     height: 100
+    width: 25,
+    height: 25,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.32,
+    shadowRadius: 5.46,
+
+    elevation: 9,
   }
 
 });
