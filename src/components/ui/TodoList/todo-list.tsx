@@ -1,5 +1,5 @@
-import { Todo } from '@/src/db/schema';
-import { ScrollView, useColorScheme } from 'react-native';
+import { Todo } from '@src/db/schema';
+import { FlatList, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { TodoItem } from './todo-item';
 
@@ -16,19 +16,21 @@ export const TodoList = ({ taskList, onPress, onSwipeRight, onSwipeLeft, onLongP
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 10 }}>
-        {taskList?.map((todo) => (
+      <FlatList
+        data={taskList}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ padding: 16, gap: 10 }}
+        renderItem={({ item }) => (
           <TodoItem
-            key={todo.id}
-            todo={todo}
+            todo={item}
             dark={dark}
             onPress={onPress}
             onSwipeRight={onSwipeRight}
             onSwipeLeft={onSwipeLeft}
             onLongPress={onLongPress}
           />
-        ))}
-      </ScrollView>
+        )}
+      />
     </GestureHandlerRootView>
   );
 };

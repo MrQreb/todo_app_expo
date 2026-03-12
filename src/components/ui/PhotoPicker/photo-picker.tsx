@@ -1,40 +1,42 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import React, { useState } from 'react';
+import React from 'react';
 import { ActionSheetIOS, Alert, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { AddPhotoButton } from './add-photo-butoon';
 import { ImageCardItem } from './image-card-item';
 
 interface Props {
-  value?: string[];
+  /**Uris array */
+  images: string[];
+
   multiple?: boolean;
   maxImages?: number;
   quality?: number;
+
+  /** [3,4] => Example */
   aspect?: [number, number];
-  onImagePicked: (uris: string[]) => void;
+  setImages: (uris: string[]) => void;
+
   onCancel: () => void;
   fullWidth?: boolean;
   allowEditing?: boolean;
 }
 
 export default function PhotoPicker({
-  value = [],
+  images = [],
   multiple = false,
   maxImages = 10,
   quality = 1,
   aspect,
-  onImagePicked,
+  setImages,
   onCancel,
   fullWidth = true,
   allowEditing = false
 }: Props) {
 
-  const [images, setImages] = useState<string[]>(value);
-
   const handleRemovePhoto = (uri: string) => {
     const updated = images.filter(image => image !== uri);
     setImages(updated);
-    onImagePicked(updated);
   };
 
   const openCamera = async () => {
@@ -47,8 +49,8 @@ export default function PhotoPicker({
     if (!result.canceled) {
       const uri = result.assets[0].uri;
       const next = multiple ? [...images, uri] : [uri];
+      // setImages(next);
       setImages(next);
-      onImagePicked(next);
     } else {
       onCancel();
     }
@@ -67,8 +69,8 @@ export default function PhotoPicker({
     if (!result.canceled) {
       const uris = result.assets.map(a => a.uri);
       const next = multiple ? [...images, ...uris].slice(0, maxImages) : [uris[0]];
+      // setImages(next);
       setImages(next);
-      onImagePicked(next);
     } else {
       onCancel();
     }
@@ -95,12 +97,14 @@ export default function PhotoPicker({
     }
   };
 
+  /**Button to add photo */
   if (images.length === 0) return <AddPhotoButton onPress={handlePress} />;
 
   return (
+    
     <View style={styles.container}>
 
-      {images.length > 0 && !multiple && (
+      {!multiple && (
         <Pressable onPress={handlePress}>
           <View style={[styles.imageCard, fullWidth && styles.imageCardFull]}>
             <Image source={{ uri: images[0] }} style={styles.image} resizeMode="cover" />
@@ -108,7 +112,7 @@ export default function PhotoPicker({
         </Pressable>
       )}
 
-      {images.length > 0 && multiple && (
+      {multiple && (
         <View style={styles.grid}>
           {images.map((uri) => (
             <ImageCardItem

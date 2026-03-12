@@ -1,4 +1,5 @@
-import { Todo } from '@/src/db/schema';
+
+import { Todo } from '@src/db/schema';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
@@ -33,9 +34,11 @@ const PRIORITY_COLORS = {
 
 export const TodoItem = ({ todo, dark, onPress, onSwipeRight, onSwipeLeft, onDoubleTap, onLongPress }: Props) => {
   const translateX = useSharedValue(0);
-
+  
   const pan = Gesture.Pan()
     .runOnJS(true)
+    .activeOffsetX([-10, 10])
+    .failOffsetY([-10, 10])  
     .onUpdate((e) => { translateX.value = e.translationX; })
     .onEnd((e) => {
       if (e.translationX > 100) onSwipeRight?.(todo);
@@ -70,7 +73,7 @@ export const TodoItem = ({ todo, dark, onPress, onSwipeRight, onSwipeLeft, onDou
           <CompleteBackground />
         </Animated.View>
         <Animated.View style={animStyle}>
-          
+
           <Pressable
             onPress={() => onPress?.(todo)}
             onLongPress={() => onLongPress?.(todo)}
@@ -143,10 +146,10 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 10,
   },
-  
+
   priorityBar: {
     width: 3,
-    height: 18,  
+    height: 18,
     borderRadius: 2,
   },
 

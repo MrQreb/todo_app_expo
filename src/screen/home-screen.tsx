@@ -19,11 +19,11 @@ export default function HomeScreen() {
   const dark = colorScheme === 'dark';
 
   const [text, setText] = useState<string>('');
-  const [taskImages, setTaskImages] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
-    console.log(taskImages)
-  }, [taskImages])
+    console.log(images)
+  }, [images])
 
   const [filter, setFilter] = useState<FilterStatus>('all');
   const [priority, setPriority] = useState<Priority>('medium');
@@ -52,14 +52,14 @@ export default function HomeScreen() {
     const todoId = result[0].id;
 
     // 2. Inserta cada imagen relacionada al todo
-    if (taskImages.length > 0) {
+    if (images.length > 0) {
       await db.insert(photos).values(
-        taskImages.map(uri => ({ uri, todoId }))
+        images.map(uri => ({ uri, todoId }))
       );
     }
 
     setText('');
-    setTaskImages([]);
+    setImages([]);
     toast.success('Tarea agregada');
 
     const last = await todoQueries.getLastWithPhotos();
@@ -111,9 +111,6 @@ export default function HomeScreen() {
           onPressCompleted={() => handleFilterPress('completed')}
           onPressInNotCompleted={() => handleFilterPress('pending')}
         />
-
-
-
         <View style={{ flex: 1 }}>
           <TodoList
             taskList={filteredList}
@@ -123,11 +120,11 @@ export default function HomeScreen() {
 
           />
         </View>
-
         <PhotoPicker
-          multiple
+          images={images}
+          multiple={true}
           maxImages={1}
-          onImagePicked={(uris) => setTaskImages(uris)}
+          setImages={setImages}
           onCancel={() => { }}
         />
         <InputContainer>
