@@ -1,5 +1,5 @@
 
-import { Todo } from '@src/db/schema';
+import { TodoWithPhotos } from '@src/db/schema';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
@@ -7,13 +7,13 @@ import { CompleteBackground } from './complete-background';
 import { DeleteBackground } from './delete-background';
 
 type Props = {
-  todo: Todo;
+  todo: TodoWithPhotos;
   dark: boolean;
-  onPress?: (todo: Todo) => void;
-  onSwipeRight?: (todo: Todo) => void;
-  onSwipeLeft?: (todo: Todo) => void;
-  onDoubleTap?: (todo: Todo) => void;
-  onLongPress?: (todo: Todo) => void;
+  onPress?: (todo: TodoWithPhotos) => void;
+  onSwipeRight?: (todo: TodoWithPhotos) => void;
+  onSwipeLeft?: (todo: TodoWithPhotos) => void;
+  onDoubleTap?: (todo: TodoWithPhotos) => void;
+  onLongPress?: (todo: TodoWithPhotos) => void;
 };
 
 const formatDate = (date?: Date | null) => {

@@ -14,6 +14,7 @@ export const todoQueries = {
             orderBy(
                 desc(todos.createdAt)
             );
+            
     },
 
     getByPriority: (priority: Priority) => {

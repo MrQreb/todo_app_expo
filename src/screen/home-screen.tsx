@@ -111,6 +111,9 @@ export default function HomeScreen() {
           onPressCompleted={() => handleFilterPress('completed')}
           onPressInNotCompleted={() => handleFilterPress('pending')}
         />
+
+
+
         <View style={{ flex: 1 }}>
           <TodoList
             taskList={filteredList}
@@ -120,9 +123,9 @@ export default function HomeScreen() {
 
           />
         </View>
+
         <PhotoPicker
           images={images}
-          multiple={true}
           maxImages={1}
           setImages={setImages}
           onCancel={() => { }}

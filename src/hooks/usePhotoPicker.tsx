@@ -19,7 +19,7 @@
 
 //   const pickFromCamera = async (): Promise<string | null> => {
 //     const { granted } = await ImagePicker.requestCameraPermissionsAsync();
-//     if (!granted) {
+//     if (!granted) { 
 //       Alert.alert('Permiso requerido', 'Se necesita acceso a la cámara.');
 //       return null;
 //     }

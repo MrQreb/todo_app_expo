@@ -28,3 +28,5 @@ export type NewTodo = typeof todos.$inferInsert;
 
 export type Photo = typeof photos.$inferSelect;
 export type NewPhoto = typeof photos.$inferInsert;
+
+
