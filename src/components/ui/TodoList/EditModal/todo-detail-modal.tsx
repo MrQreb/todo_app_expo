@@ -1,5 +1,5 @@
-import { Todo } from '@/src/db/schema';
 import { Feather } from '@expo/vector-icons';
+import { Todo } from '@src/db/schema';
 import {
   Modal,
   StyleSheet,

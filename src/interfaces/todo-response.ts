@@ -6,7 +6,7 @@ export interface TodoWithPhotos {
 }
 
 export interface Photos {
-    createdAt: Date;
+    createdAt: Date | null;
     id:        number;
     todoId:    number;
     uri:       string;
@@ -14,7 +14,7 @@ export interface Photos {
 
 export interface Todos {
     completed: boolean;
-    createdAt: Date;
+    createdAt: Date | null;
     id:        number;
     priority:  Priority;
     title:     string;

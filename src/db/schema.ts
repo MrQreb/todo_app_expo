@@ -22,11 +22,14 @@ export const photos = sqliteTable('photos', {
     .$defaultFn(() => new Date()),
 });
 
-
 export type Todo = typeof todos.$inferSelect;
 export type NewTodo = typeof todos.$inferInsert;
-
 export type Photo = typeof photos.$inferSelect;
 export type NewPhoto = typeof photos.$inferInsert;
 
+// Tipo del join
+// export type TodoWithPhotos = {
+//     todos: Todo;
+//     photos: Photo | null;
+// };
 

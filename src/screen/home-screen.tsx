@@ -38,6 +38,10 @@ export default function HomeScreen() {
 
   const { data: filteredList } = useLiveQuery(QUERY_MAP[filter], [filter]);
 
+  console.log(filteredList)
+  console.log(typeof(filteredList))
+  console.log(typeof(filteredList))
+
 
   const addTodo = async () => {
     const trimmed = text.trim();
