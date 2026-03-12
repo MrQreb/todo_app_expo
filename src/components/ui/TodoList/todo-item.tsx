@@ -1,4 +1,3 @@
-
 import { TodoWithPhotos } from '@src/db/schema';
 import { Image } from 'expo-image';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -7,10 +6,8 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-na
 import { CompleteBackground } from './complete-background';
 import { DeleteBackground } from './delete-background';
 
-
 type Props = {
   todo: TodoWithPhotos;
-  dark: boolean;
   onPress?: (todo: TodoWithPhotos) => void;
   onSwipeRight?: (todo: TodoWithPhotos) => void;
   onSwipeLeft?: (todo: TodoWithPhotos) => void;
@@ -34,7 +31,7 @@ const PRIORITY_COLORS = {
   urgent: '#7C3AED',
 };
 
-export const TodoItem = ({ todo, dark, onPress, onSwipeRight, onSwipeLeft, onDoubleTap, onLongPress }: Props) => {
+export const TodoItem = ({ todo, onPress, onSwipeRight, onSwipeLeft, onDoubleTap, onLongPress }: Props) => {
   const translateX = useSharedValue(0);
 
   const pan = Gesture.Pan()
@@ -65,52 +62,58 @@ export const TodoItem = ({ todo, dark, onPress, onSwipeRight, onSwipeLeft, onDou
     opacity: translateX.value < -10 ? 1 : 0,
   }));
 
+  const priorityColor = PRIORITY_COLORS[todo.priority];
+
   return (
     <GestureDetector gesture={Gesture.Simultaneous(pan, doubleTap)}>
       <Animated.View>
-        <Animated.View style={deleteStyle}>
+        <Animated.View style={[StyleSheet.absoluteFill, deleteStyle]}>
           <DeleteBackground />
         </Animated.View>
-        <Animated.View style={completeStyle}>
+        <Animated.View style={[StyleSheet.absoluteFill, completeStyle]}>
           <CompleteBackground />
         </Animated.View>
-        <Animated.View style={animStyle}>
 
+        <Animated.View style={animStyle}>
           <Pressable
             onPress={() => onPress?.(todo)}
             onLongPress={() => onLongPress?.(todo)}
             delayLongPress={400}
             style={({ pressed }) => [
               styles.container,
-              { backgroundColor: dark ? '#1e1e1e' : '#fff' },
-              pressed && { opacity: 0.7 },
+              pressed && styles.containerPressed,
             ]}
           >
+            {/* Barra de prioridad */}
+            <View style={[styles.priorityBar, { backgroundColor: priorityColor }]} />
 
-            <View style={styles.titleRow}>
-              <View style={[styles.priorityBar, { backgroundColor: PRIORITY_COLORS[todo.priority] }]} />
-              <Text style={[styles.title, {
-                color: dark ? '#fff' : '#222',
-                textDecorationLine: todo.completed ? 'line-through' : 'none',
-                opacity: todo.completed ? 0.5 : 1,
-              }]}>
-                {todo.title}
-              </Text>
+            {/* Contenido */}
+            <View style={styles.content}>
+              <View style={styles.titleRow}>
+                <Text
+                  style={[
+                    styles.title,
+                    todo.completed && styles.titleCompleted,
+                  ]}
+                  numberOfLines={2}
+                >
+                  {todo.title}
+                </Text>
 
-              {/* Show images in todo */}
-              {todo.photos[0]?.uri && (
-                <Image style={styles.image} source={todo.photos[0]?.uri} />
-              )}
+                {todo.photos[0]?.uri && (
+                  <Image
+                    style={styles.image}
+                    source={todo.photos[0].uri}
+                    contentFit="cover"
+                  />
+                )}
+              </View>
 
+              <View style={styles.footer}>
+                <Text style={styles.date}>{formatDate(todo.createdAt)}</Text>
+                <View style={[styles.priorityDot, { backgroundColor: priorityColor }]} />
+              </View>
             </View>
-
-            <View style={[styles.priorityDot, { backgroundColor: PRIORITY_COLORS[todo.priority] }]} />
-
-
-            <Text style={[styles.date, { color: dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)' }]}>
-              {formatDate(todo.createdAt)}
-            </Text>
-
           </Pressable>
         </Animated.View>
       </Animated.View>
@@ -121,58 +124,59 @@ export const TodoItem = ({ todo, dark, onPress, onSwipeRight, onSwipeLeft, onDou
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 14,
-    borderRadius: 12,
+    alignItems: 'stretch',
+    backgroundColor: '#1C1C1E',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+    overflow: 'hidden',
+    marginVertical: 4,
   },
-  title: {
-    fontSize: 16,
+  containerPressed: {
+    backgroundColor: '#2C2C2E',
+  },
+  priorityBar: {
+    width: 3,
+  },
+  content: {
     flex: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    gap: 6,
   },
-  priority: {
-    fontSize: 12,
-    color: '#6C63FF',
-    marginLeft: 8,
-  },
-  date: {
-    fontSize: 11,
-    marginLeft: 8,
-  },
-
-  priorityDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginLeft: 8,
-  },
-
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
     gap: 10,
   },
-
-  priorityBar: {
-    width: 3,
-    height: 18,
-    borderRadius: 2,
+  title: {
+    fontSize: 15,
+    fontWeight: '500',
+    flex: 1,
+    lineHeight: 20,
+    color: '#F2F2F7',
   },
-
+  titleCompleted: {
+    textDecorationLine: 'line-through',
+    opacity: 0.4,
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  date: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.28)',
+  },
+  priorityDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
   image: {
-    width: 25,
-    height: 25,
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.32,
-    shadowRadius: 5.46,
-
-    elevation: 9,
-  }
-
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+  },
 });

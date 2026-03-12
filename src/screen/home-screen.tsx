@@ -6,12 +6,12 @@ import { toast } from '@src/components/ui/Toast';
 import { TodoDetailModal } from '@src/components/ui/TodoList/EditModal/todo-detail-modal';
 import { TodoList } from '@src/components/ui/TodoList/todo-list';
 import { db } from '@src/db/client';
-import { photos, Priority, Todo, todos } from '@src/db/schema';
+import { photos, Priority, Todo, todos, TodoWithPhotos } from '@src/db/schema';
 import { todoQueries } from '@src/queries/todoQueries';
 import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import React, { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
@@ -27,7 +27,7 @@ export default function HomeScreen() {
 
   const [filter, setFilter] = useState<FilterStatus>('all');
   const [priority, setPriority] = useState<Priority>('medium');
-  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+  const [selectedTodo, setSelectedTodo] = useState<TodoWithPhotos | null>(null);
 
 
   const QUERY_MAP = {
@@ -76,6 +76,7 @@ export default function HomeScreen() {
   const deleteTodo = async (todo: Todo) => {
     try {
       await db.delete(todos).where(eq(todos.id, todo.id));
+      toast.warning(`Tarea eliminada`);
     } catch (error) {
       console.error('Error al eliminar:', error);
     }
@@ -86,6 +87,7 @@ export default function HomeScreen() {
       await db.update(todos)
         .set({ completed: !todo.completed })
         .where(eq(todos.id, todo.id));
+      toast.success(`Tarea completada`);
     } catch (error) {
       console.error('Error al completar:', error);
     }
@@ -106,7 +108,6 @@ export default function HomeScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
 
-        <Text style={[styles.title, { color: dark ? '#fff' : '#222' }]}>Mis Tareas</Text>
 
         <SelectPriority selected={priority} onSelect={setPriority} />
 
@@ -118,7 +119,7 @@ export default function HomeScreen() {
         />
 
 
-        
+
         <View style={{ flex: 1 }}>
           <TodoList
             taskList={filteredList}
@@ -158,7 +159,11 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  title: { fontSize: 30, fontWeight: 'bold', margin: 16 },
-  header: { paddingHorizontal: 16, paddingTop: 8 },
+  container: {
+    flex: 1
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingTop: 8
+  },
 });

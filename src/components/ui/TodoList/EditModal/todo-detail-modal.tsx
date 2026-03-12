@@ -1,5 +1,6 @@
 import { Feather } from '@expo/vector-icons';
-import { Todo } from '@src/db/schema';
+import { TodoWithPhotos } from '@src/db/schema';
+import { Image } from 'expo-image';
 import {
   Modal,
   StyleSheet,
@@ -9,17 +10,17 @@ import {
   View,
   useColorScheme
 } from 'react-native';
-import { useTodoDetail } from './hooks/useTodoDetail';
 
+import { useTodoDetail } from './hooks/useTodoDetail';
 type Props = {
-  todo: Todo | null;
+  todo: TodoWithPhotos | null;
   onClose: () => void;
 };
 
 const PRIORITY_CONFIG: Record<string, { color: string; bg: string; label: string; icon: string }> = {
-  high:   { color: '#FF4D4D', bg: 'rgba(255,77,77,0.12)',   label: 'Alta',   icon: 'arrow-up' },
-  medium: { color: '#FFA500', bg: 'rgba(255,165,0,0.12)',   label: 'Media',  icon: 'minus' },
-  low:    { color: '#34D399', bg: 'rgba(52,211,153,0.12)',  label: 'Baja',   icon: 'arrow-down' },
+  high: { color: '#FF4D4D', bg: 'rgba(255,77,77,0.12)', label: 'Alta', icon: 'arrow-up' },
+  medium: { color: '#FFA500', bg: 'rgba(255,165,0,0.12)', label: 'Media', icon: 'minus' },
+  low: { color: '#34D399', bg: 'rgba(52,211,153,0.12)', label: 'Baja', icon: 'arrow-down' },
 };
 
 const PriorityBadge = ({ priority, isDark }: { priority?: string; isDark: boolean }) => {
@@ -33,13 +34,14 @@ const PriorityBadge = ({ priority, isDark }: { priority?: string; isDark: boolea
 };
 
 export const TodoDetailModal = ({ todo, onClose }: Props) => {
+  
   const isDark = useColorScheme() === 'dark';
   const { editedTitle, setEditedTitle, saveTitle, isSaving } = useTodoDetail(todo);
 
-  const bg      = isDark ? '#141414' : '#FAFAFA';
+  const bg = isDark ? '#141414' : '#FAFAFA';
   const surface = isDark ? '#1F1F1F' : '#FFFFFF';
-  const border  = isDark ? '#2A2A2A' : '#EBEBEB';
-  const textPrimary   = isDark ? '#F0F0F0' : '#111111';
+  const border = isDark ? '#2A2A2A' : '#EBEBEB';
+  const textPrimary = isDark ? '#F0F0F0' : '#111111';
   const textSecondary = isDark ? '#666666' : '#AAAAAA';
 
   const handleClose = async () => {
@@ -71,6 +73,8 @@ export const TodoDetailModal = ({ todo, onClose }: Props) => {
             </TouchableOpacity>
           </View>
 
+
+
           {/* Title input */}
           <TextInput
             style={[styles.titleInput, { color: textPrimary, borderBottomColor: border }]}
@@ -98,6 +102,16 @@ export const TodoDetailModal = ({ todo, onClose }: Props) => {
           {/* Divider */}
           <View style={[styles.divider, { backgroundColor: border }]} />
 
+          {
+            todo?.photos && todo.photos.length > 0 && (
+              <View style={styles.imageContainer}>
+                <Image style={styles.image} source={todo?.photos[0].uri} />
+
+              </View>
+
+            )
+          }
+
           {/* Save button */}
           <TouchableOpacity
             style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
@@ -109,11 +123,13 @@ export const TodoDetailModal = ({ todo, onClose }: Props) => {
             {isSaving
               ? <Feather name="loader" size={18} color="#fff" />
               : <>
-                  <Feather name="check" size={16} color="#fff" />
-                  <Text style={styles.saveButtonText}>Guardar</Text>
-                </>
+                <Feather name="check" size={16} color="#fff" />
+                <Text style={styles.saveButtonText}>Guardar</Text>
+              </>
             }
           </TouchableOpacity>
+
+
 
         </View>
       </View>
@@ -221,4 +237,26 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 0.3,
   },
+
+  imageContainer: {
+    alignItems: 'center',
+    padding: 3,
+    borderRadius: 20,
+  },
+
+  image: {
+    width: 90,
+    height: 90,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.32,
+    shadowRadius: 5.46,
+
+    elevation: 9,
+  }
+
 });

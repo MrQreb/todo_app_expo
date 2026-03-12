@@ -32,12 +32,26 @@ export default function RootLayout() {
       <GestureHandlerRootView style={{ flex: 1 }}>{/* Necesary to use gestures in toast */}
         <ToastProvider>
           <Drawer
+            screenOptions={{
+              drawerStyle: {
+                backgroundColor: '#1C1C1E',
+              },
+              headerStyle: {
+                backgroundColor: '#141414',
+              },
+              headerShadowVisible: false,
+              drawerActiveTintColor: '#F2F2F7',
+              drawerInactiveTintColor: 'rgba(255, 255, 255, 0.4)',
+            }}
           >
             <Drawer.Screen
               name="index"
               options={{
                 drawerLabel: 'Tareas',
                 title: '',
+                headerStyle: {
+                  backgroundColor: '#030000',
+                },
               }}
 
             />
