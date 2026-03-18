@@ -117,8 +117,6 @@ export default function HomeScreen() {
           onPressInNotCompleted={() => handleFilterPress('pending')}
         />
 
-
-
         <View style={{ flex: 1 }}>
           <TodoList
             taskList={filteredList}
