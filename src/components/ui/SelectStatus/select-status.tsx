@@ -1,4 +1,5 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { FontFamily } from "@src/const/fonts";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 
@@ -124,9 +125,11 @@ const styles = StyleSheet.create({
         borderColor: '#F59E0B',
     },
     buttonText: {
-        fontSize: 13,
         fontWeight: '500',
         color: 'rgba(255,255,255,0.7)',
+        fontFamily: FontFamily.monoMedium,
+
+        // fontSize: FontSize.,
     },
     buttonTextActive: {
         color: '#fff',

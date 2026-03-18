@@ -1,3 +1,4 @@
+import { FontFamily } from '@src/const/fonts';
 import { TodoWithPhotos } from '@src/db/schema';
 import { Image } from 'expo-image';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -155,6 +156,8 @@ const styles = StyleSheet.create({
     flex: 1,
     lineHeight: 20,
     color: '#F2F2F7',
+    fontFamily: FontFamily.monoBold,
+
   },
   titleCompleted: {
     textDecorationLine: 'line-through',
