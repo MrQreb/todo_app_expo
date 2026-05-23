@@ -1,6 +1,6 @@
 
 import migrations from '@migrations/migrations';
-import { DarkTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, ThemeProvider } from "expo-router/react-navigation";
 import { ToastProvider } from '@src/components/ui/Toast';
 import { db } from '@src/db/client';
 import { useMediaLibraryPermission } from '@src/hooks/useMediaLibraryPermission';
